@@ -6,6 +6,7 @@ import Movie from './Movies-app/Movie';
 import { comedyMovies, latestMovies, popularMovies } from './Movies-app/url'; 
 import Banner from './Movies-app/Banner';
 import Details from './Movies-app/Details';
+import 
 
 
 function App() {
