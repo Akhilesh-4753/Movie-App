@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
 import axios from 'axios'
@@ -6,52 +6,62 @@ import { imageUrl } from './url';
 import { MdOutlineFileDownload } from "react-icons/md";
 import { IoPlaySharp } from "react-icons/io5";
 import { useNavigate } from 'react-router-dom';
+import { MovieContext } from '../App';
+import { IoMdDownload, IoIosPlay } from "react-icons/io";
 
-const Movie = ({movielist,titles}) => {
-  const [movie, setmovie] = useState([]);
+const Movie = ({ movielist, titles, isSearchResult = false} ) => {
+  const { movieDetailed, setMovieDetailed, movieId, setMovieId, filteredMovies} = useContext(MovieContext);
+  
   useEffect(() => {
+    if (movielist) {
     axios
     .get(movielist)
-    .then((abc)=>setmovie(abc.data.results));
-    
-  }, [movielist])
+    .then((abc)=>setMovieDetailed(abc.data.results));
+  }
+  }, [movielist,setMovieDetailed])
+
+  const displayMovies = isSearchResult ? filteredMovies : movieDetailed;       {/* search cheyth kazhinjal output kittunnath : all movie details */}
+  let filteredDisplayMovies = displayMovies.filter((i) => {
+    return ![179387, 1149912, 482600, 259872, 1357459, 1064213, 587727, 1149912, 697251 ,829557, 216015, 1371540, 464026, 225634, 323260, 211079].includes(i.id); {/* includes(i.id) = i.d arrayil indonn check cheyyunnu. illenkil illatha items return cheyyunn .i ennath ooro movies ne represent cheyyunnu*/}
+  });
+  console.log(filteredMovies);
+
   const nav = useNavigate();
-  const movieDetails =()=>{
+  const handleMovieClick =(id)=>{
+    setMovieId(id);
     nav('/details')
   }
-  
+  console.log(movieId);
   return (
-    <div className='parrent'>
-    <h1>{titles}</h1>
-    <div className='movies'>
-      {movie.map((i)=>{
-        return(
-          <div>
-          <div className='moviess' style={{marginTop:'40px', borderRadius:'30px'}}>
-          <Card onClick={movieDetails} className='card' style={{ width: '18rem'}}>
-      <Card.Img className='card-img' variant="top" style={{height:'380px'}} src={imageUrl+i.poster_path}/>
-      <Card.Body>
-        <Card.Title>{i.title}</Card.Title>
-        <Card.Text>
-          Some quick example text to build on the card title and make up the
-          bulk of the card's content.
-        </Card.Text>
-        <div className='button'>
-        <Button variant="primary" className='pe-3'>Play <IoPlaySharp /></Button>
-        <Button variant="danger">Download <MdOutlineFileDownload size={'20px'} /></Button>
-        </div>
-      </Card.Body>
-    </Card>
-    </div>  
+    <div className="Container">
+      <h2>{titles}</h2>
+      <div className="child-container">
+        {filteredDisplayMovies.length > 0 ? (
+          filteredDisplayMovies.map((i) => (
+            <Card key={i.id} onClick={() => handleMovieClick(i.id)} className='mb-4'>
+              <Card.Img variant="top" style={{height:'100%'}} src={imageUrl + i.backdrop_path} />
+              <Card.Body>
+                <Card.Title>{i.title || i.name}</Card.Title>
+                <Card.Text>
+                  {i.overview.substring(0, 100)}...
+                </Card.Text>
+                <div className="button">
+                  <Button variant="primary">Play <IoIosPlay /></Button>
+                  <Button variant="danger">Download <IoMdDownload /></Button>
+                </div>
+              </Card.Body>
+            </Card>
+          ))
+        ) : (
+          <div className="text-center w-100 mt-4">
+          </div>
+        )}
       </div>
-        )
-      })}
     </div>
-    </div>
-  )
-}
+  );
+};
 
-export default Movie
+export default Movie;
 
 /*
 1) Api il ullath array of datas ahnn. so athine oru variable il store cheythale mapping html il konduvaran kazhiyullu. so nammal useState use cheyth variable declare cheyth athil empty square braces
